@@ -1,212 +1,188 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
-import {
-  ArrowRight,
-  BatteryCharging,
-  Gauge,
-  Shield,
-  Sparkles,
-  Wrench,
-} from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Zap, Shield, Clock, MapPin } from 'lucide-react'
 import { apiClient } from '@/api/client'
 import { useLang, t } from '../lib/Lang.js'
 import FleetCard from '../components/FleetCard'
 import TerrainFilter from '../components/TerrainFilter'
 
 const HERO_BG =
-  'https://images.unsplash.com/photo-1529429611278-7bb0f5f6c8e5?auto=format&fit=crop&w=2200&q=80'
+  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920'
 
-const TECH_PILLARS = [
-  {
-    icon: BatteryCharging,
-    title: 'Long-ride confidence',
-    text: 'Reliable machines with transparent maintenance logs and route-ready prep.',
-  },
-  {
-    icon: Gauge,
-    title: 'Performance by profile',
-    text: 'Filter by terrain and riding style to quickly find your ideal bike.',
-  },
-  {
-    icon: Shield,
-    title: 'Insurance-first process',
-    text: 'Clear terms, rider support, and premium coverage options at booking.',
-  },
-  {
-    icon: Wrench,
-    title: 'Workshop-grade care',
-    text: 'Every bike passes a strict inspection before each hand-off.',
-  },
+const FEATURES = [
+  { icon: Zap, title: 'Premium Fleet', desc: 'Handpicked machines, maintained for peak performance.' },
+  { icon: Shield, title: 'Full Coverage', desc: 'Comprehensive insurance included with every rental.' },
+  { icon: Clock, title: 'Flexible Duration', desc: 'From single-day escapes to multi-week expeditions.' },
+  { icon: MapPin, title: 'Guided Routes', desc: 'Curated itineraries through Morocco’s best roads.' },
 ]
-
-const LINES = [
-  { key: 'Adventure', heading: 'Adventure Line', sub: 'Touring + mixed terrain' },
-  { key: 'Road', heading: 'Road Line', sub: 'Urban + tarmac precision' },
-  { key: 'Touring', heading: 'Touring Line', sub: 'Long distance comfort' },
-]
-
-function mapCategory(item) {
-  const category = (item.category || '').toLowerCase()
-  if (category.includes('adventure')) return 'Adventure'
-  if (category.includes('tour')) return 'Touring'
-  return 'Road'
-}
 
 export default function Home() {
-  const lang = useLang()
   const [motorcycles, setMotorcycles] = useState([])
   const [terrain, setTerrain] = useState('all')
-  const [line, setLine] = useState('Adventure')
   const [loading, setLoading] = useState(true)
-
   const heroRef = useRef(null)
+  const lang = useLang()
+
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ['start start', 'end start'],
   })
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
+
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
 
   useEffect(() => {
-    apiClient.entities.Motorcycle.list().then((data) => {
-      const normalized = data.map((item) => ({
-        ...item,
-        line: mapCategory(item),
-      }))
-      setMotorcycles(normalized)
+    apiClient.entities.Motorcycle.list('-created_date', 50).then((data) => {
+      setMotorcycles(data)
       setLoading(false)
     })
   }, [])
 
-  const terrainFiltered = useMemo(() => {
-    if (terrain === 'all') return motorcycles
-    return motorcycles.filter((m) => m.terrain === terrain)
-  }, [motorcycles, terrain])
-
-  const lineFiltered = useMemo(() => {
-    return terrainFiltered.filter((m) => m.line === line)
-  }, [terrainFiltered, line])
-
-  const featured = lineFiltered.slice(0, 3)
+  const filtered =
+    terrain === 'all'
+      ? motorcycles.slice(0, 6)
+      : motorcycles.filter((m) => m.terrain === terrain).slice(0, 6)
 
   return (
-    <div className="pb-24">
-      <section
-        ref={heroRef}
-        className="relative min-h-[92vh] flex items-center overflow-hidden"
-      >
+    <div className="bg-background text-foreground">
+
+      {/* ================= HERO ================= */}
+      <section ref={heroRef} className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
         <motion.div style={{ y: heroY }} className="absolute inset-0">
-          <img src={HERO_BG} alt="Premium motorcycles" className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-black/50" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/30 to-background" />
+          <img src={HERO_BG} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="absolute inset-0 grid-overlay opacity-[0.15]" />
         </motion.div>
 
-        <div
-          className="absolute inset-0 opacity-[0.08]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)',
-            backgroundSize: '56px 56px',
-          }}
-        />
-
-        <div className="relative z-10 mx-auto w-full max-w-[1320px] px-6 lg:px-10 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-4 py-2 backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span className="font-mono text-[11px] tracking-[0.25em] text-zinc-200">
-              PREMIUM MOTORCYCLE RENTALS
-            </span>
+        <div className="relative z-10 text-center px-6 max-w-5xl">
+          <div className="mb-6 text-[11px] tracking-[0.3em] font-mono text-white/50">
+            PREMIUM MOTORCYCLE RENTALS · MOROCCO
           </div>
 
-          <h1 className="mt-8 font-syne text-[clamp(58px,10vw,138px)] font-black leading-[0.88] tracking-[-0.04em] text-white">
-            {t(lang, 'home.hero_title_1')}
-            <br />
-            <span className="text-primary">{t(lang, 'home.hero_title_2')}</span>
+          <h1 className="font-syne text-[clamp(56px,9vw,120px)] leading-[0.9] font-black tracking-[-0.05em]">
+            Ride the <br />
+            <span className="text-primary">Unknown</span>
           </h1>
 
-          <p className="mx-auto mt-8 max-w-2xl text-lg text-zinc-200/90 md:text-xl">
-            Upgrade your ride with a premium fleet, flexible packages, and booking
-            that feels as refined as the machines themselves.
+          <p className="mt-6 text-white/60 max-w-xl mx-auto text-lg">
+            Every machine in our fleet is a masterpiece. Choose your ride and explore Morocco differently.
           </p>
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/fleet"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary px-10 py-4 text-sm font-semibold text-primary-foreground transition hover:shadow-[0_0_40px_rgba(255,62,0,0.35)]"
+              className="bg-primary text-white px-8 py-4 rounded-full font-semibold flex items-center gap-2 justify-center hover:scale-[1.03] transition"
             >
-              Explore Fleet
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+              Explore Fleet <ArrowRight className="w-4 h-4" />
             </Link>
+
             <Link
               to="/offers"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/25 px-10 py-4 text-sm font-medium text-white backdrop-blur transition hover:border-white/40"
+              className="glass-dark px-8 py-4 rounded-full flex items-center gap-2 justify-center text-white/80 hover:text-white"
             >
-              View Offers
+              View Offers <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </section>
 
-      <section className="-mt-8 px-6 lg:px-10">
-        <div className="mx-auto grid w-full max-w-[1320px] grid-cols-1 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#090a10] sm:grid-cols-2 lg:grid-cols-4">
-          {TECH_PILLARS.map((item) => (
-            <article
-              key={item.title}
-              className="border-b border-white/[0.06] p-7 sm:border-r sm:border-b-0 last:sm:border-r-0"
-            >
-              <item.icon className="h-5 w-5 text-primary" />
-              <h3 className="mt-5 text-2xl font-semibold text-zinc-100">{item.title}</h3>
-              <p className="mt-3 text-sm text-zinc-400">{item.text}</p>
-            </article>
-          ))}
+      {/* ================= FEATURES ================= */}
+      <section className="py-24">
+        <div className="container-site">
+          <div className="grid md:grid-cols-4 border border-white/[0.08] rounded-2xl overflow-hidden">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="p-8 border-r border-white/[0.06] last:border-none">
+                <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-primary/10 mb-5">
+                  <f.icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-syne font-bold text-lg mb-2">{f.title}</h3>
+                <p className="text-white/50 text-sm">{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="pt-20 px-6 lg:px-10">
-        <div className="mx-auto w-full max-w-[1320px]">
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+      {/* ================= FLEET ================= */}
+      <section className="pb-28">
+        <div className="container-site">
+          <div className="flex justify-between items-end mb-12">
             <div>
-              <p className="font-mono text-[10px] tracking-[0.25em] text-primary">? THE HANGAR</p>
-              <h2 className="mt-4 font-syne text-[clamp(48px,7vw,88px)] font-black leading-[0.9] tracking-[-0.03em] text-zinc-100">
-                Select Your
-                <br />
-                Machine
+              <p className="text-primary text-xs tracking-[0.25em] mb-3">THE HANGAR</p>
+              <h2 className="font-syne text-5xl font-black leading-[1.1]">
+                Select Your <br /> Machine
               </h2>
-              <p className="mt-4 text-zinc-400">Handpicked for performance, character, and soul.</p>
+              <p className="text-white/50 mt-4 max-w-md">
+                Handpicked for performance, character, and soul.
+              </p>
             </div>
 
-            <div className="space-y-4">
-              <div className="flex flex-wrap gap-2 rounded-full border border-white/[0.06] bg-[#0d0e15] p-1.5">
-                {LINES.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => setLine(item.key)}
-                    className={`rounded-full px-4 py-2 text-xs font-semibold transition ${
-                      line === item.key
-                        ? 'bg-primary text-primary-foreground'
-                        : 'text-zinc-300 hover:text-white'
-                    }`}
-                  >
-                    {item.heading}
-                  </button>
-                ))}
-              </div>
-              <TerrainFilter active={terrain} onChange={setTerrain} />
-            </div>
+            <TerrainFilter active={terrain} onChange={setTerrain} />
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-24">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <div className="flex justify-center py-24">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="mt-10 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {(featured.length ? featured : terrainFiltered.slice(0, 3)).map((moto, i) => (
+            <div className="grid md:grid-cols-3 gap-8">
+              {filtered.map((moto, i) => (
                 <FleetCard key={moto.id} motorcycle={moto} index={i} />
               ))}
             </div>
           )}
+
+          <div className="mt-16 text-center">
+            <Link
+              to="/fleet"
+              className="glass-dark px-8 py-4 rounded-full inline-flex items-center gap-2 text-white/70 hover:text-white"
+            >
+              View full fleet <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= STATS ================= */}
+      <section className="pb-28">
+        <div className="container-site grid md:grid-cols-4 gap-6">
+          {[
+            ['12+', 'Machines in fleet'],
+            ['10+', 'Years of expertise'],
+            ['5K+', 'Riders served'],
+            ['3', 'Pickup locations'],
+          ].map(([num, label], i) => (
+            <div key={i} className="glass-dark p-10 rounded-xl text-center">
+              <h3 className="text-4xl font-black font-syne mb-2">{num}</h3>
+              <p className="text-white/50 text-sm">{label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ================= CTA ================= */}
+      <section className="pb-32">
+        <div className="container-site">
+          <div className="bg-gradient-to-br from-primary/20 to-black border border-white/[0.08] rounded-2xl p-16 text-center">
+            <p className="text-primary text-xs tracking-[0.25em] mb-4">
+              YOUR JOURNEY AWAITS
+            </p>
+
+            <h2 className="font-syne text-5xl font-black mb-6">
+              Start Your Adventure
+            </h2>
+
+            <p className="text-white/60 max-w-xl mx-auto mb-10">
+              From Marrakech to the Atlas mountains, we provide the ride for your journey of a lifetime.
+            </p>
+
+            <Link
+              to="/fleet"
+              className="bg-primary px-8 py-4 rounded-full text-white font-semibold inline-flex items-center gap-2 hover:scale-[1.03]"
+            >
+              Browse Fleet <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
     </div>
