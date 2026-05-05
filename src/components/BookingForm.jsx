@@ -1,188 +1,239 @@
-import { useState } from 'react';
-import { useLang, t } from '../lib/Lang.js';
-import { apiClient } from '@/api/client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { CalendarDays, User, Mail, Phone } from 'lucide-react';
-import { toast } from 'sonner';
-import { differenceInDays } from 'date-fns';
+import { useState } from 'react'
+import { differenceInDays } from 'date-fns'
+import { toast } from 'sonner'
+import { CalendarDays, Mail, Phone, User } from 'lucide-react'
+import { apiClient } from '@/api/client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useLang, t } from '../lib/Lang.js'
 
 function calcPrice(motorcycle, days) {
-  if (!days || !motorcycle) return 0;
-  let rate;
-  if (days <= 3) rate = motorcycle.price_1_3_days || motorcycle.price_per_day;
-  else if (days <= 5) rate = motorcycle.price_3_5_days || motorcycle.price_per_day;
-  else rate = motorcycle.price_5plus_days || motorcycle.price_per_day;
-  return days * rate;
+  if (!days || !motorcycle) return 0
+
+  let rate
+
+  if (days <= 3) rate = motorcycle.price_1_3_days || motorcycle.price_per_day
+  else if (days <= 5) rate = motorcycle.price_3_5_days || motorcycle.price_per_day
+  else rate = motorcycle.price_5plus_days || motorcycle.price_per_day
+
+  return days * rate
 }
 
 function getDailyRate(motorcycle, days) {
-  if (!days || !motorcycle) return motorcycle?.price_per_day || 0;
-  if (days <= 3) return motorcycle.price_1_3_days || motorcycle.price_per_day;
-  if (days <= 5) return motorcycle.price_3_5_days || motorcycle.price_per_day;
-  return motorcycle.price_5plus_days || motorcycle.price_per_day;
+  if (!days || !motorcycle) return motorcycle?.price_per_day || 0
+  if (days <= 3) return motorcycle.price_1_3_days || motorcycle.price_per_day
+  if (days <= 5) return motorcycle.price_3_5_days || motorcycle.price_per_day
+  return motorcycle.price_5plus_days || motorcycle.price_per_day
 }
 
 export default function BookingForm({ motorcycle }) {
-  const lang = useLang();
+  const lang = useLang()
+  const isFr = lang === 'fr'
+
   const [form, setForm] = useState({
     start_date: '',
     end_date: '',
     customer_name: '',
     customer_email: '',
     customer_phone: '',
-  });
-  const [loading, setLoading] = useState(false);
+  })
+
+  const [loading, setLoading] = useState(false)
 
   const totalDays =
     form.start_date && form.end_date
       ? Math.max(1, differenceInDays(new Date(form.end_date), new Date(form.start_date)))
-      : 0;
-  const totalPrice = calcPrice(motorcycle, totalDays);
-  const dailyRate = getDailyRate(motorcycle, totalDays);
+      : 0
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    await apiClient.entities.Booking.create({
-      motorcycle_id: motorcycle.id,
-      motorcycle_name: motorcycle.name,
-      start_date: form.start_date,
-      end_date: form.end_date,
-      total_days: totalDays,
-      total_price: totalPrice,
-      customer_name: form.customer_name,
-      customer_email: form.customer_email,
-      customer_phone: form.customer_phone,
-      status: 'pending',
-    });
-    toast.success(t(lang, 'booking.toast'));
-    setLoading(false);
-    setForm({ start_date: '', end_date: '', customer_name: '', customer_email: '', customer_phone: '' });
-  };
+  const dailyRate = getDailyRate(motorcycle, totalDays)
+  const totalPrice = calcPrice(motorcycle, totalDays)
+
+  const updateField = (field, value) => {
+    setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setLoading(true)
+
+    try {
+      await apiClient.entities.Booking.create({
+        motorcycle_id: motorcycle.id,
+        motorcycle_name: motorcycle.name,
+        start_date: form.start_date,
+        end_date: form.end_date,
+        total_days: totalDays,
+        total_price: totalPrice,
+        customer_name: form.customer_name,
+        customer_email: form.customer_email,
+        customer_phone: form.customer_phone,
+        status: 'pending',
+      })
+
+      toast.success(t(lang, 'booking.toast'))
+
+      setForm({
+        start_date: '',
+        end_date: '',
+        customer_name: '',
+        customer_email: '',
+        customer_phone: '',
+      })
+    } catch (error) {
+      toast.error(t(lang, 'booking.error_toast'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const priceTiers = [
+    { label: isFr ? '1–3 jours' : '1–3 days', price: motorcycle.price_1_3_days },
+    { label: isFr ? '3–5 jours' : '3–5 days', price: motorcycle.price_3_5_days },
+    { label: isFr ? '5+ jours' : '5+ days', price: motorcycle.price_5plus_days },
+  ].filter((tier) => tier.price)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
-        <p className="font-mono text-[9px] tracking-[0.3em] text-primary mb-1">{t(lang,'booking.label')}</p>
-        <h3 className="font-syne text-lg font-black text-foreground">{t(lang,'booking.title')}</h3>
+        <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.32em] text-primary">
+          {t(lang, 'booking.label')}
+        </p>
+
+        <h3 className="font-inter text-[28px] font-bold leading-tight tracking-[-0.02em] text-foreground dark:text-white">
+          {t(lang, 'booking.title')}
+        </h3>
+
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground dark:text-white/45">
+          {t(lang, 'booking.subtitle')}
+        </p>
       </div>
 
-      {/* Tiered pricing display */}
-      {(motorcycle.price_1_3_days || motorcycle.price_3_5_days || motorcycle.price_5plus_days) && (
-        <div className="grid grid-cols-3 gap-2 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-          {[
-            { label: '1–3 days', price: motorcycle.price_1_3_days },
-            { label: '3–5 days', price: motorcycle.price_3_5_days },
-            { label: '5+ days', price: motorcycle.price_5plus_days },
-          ].map((tier) => tier.price && (
-            <div
-              key={tier.label}
-              className={`text-center rounded-lg p-2 transition-colors ${
-                totalDays > 0 && getDailyRate(motorcycle, totalDays) === tier.price
-                  ? 'bg-primary/20 border border-primary/40'
-                  : 'border border-transparent'
-              }`}
-            >
-              <p className="font-syne text-lg font-black text-foreground">€{tier.price}</p>
-              <p className="font-mono text-[8px] tracking-wider text-muted-foreground">{tier.label}</p>
-            </div>
-          ))}
+      {priceTiers.length > 0 && (
+        <div className="grid grid-cols-3 gap-2 rounded-[18px] border border-border bg-muted/40 p-2 dark:border-white/[0.08] dark:bg-black/18">
+          {priceTiers.map((tier) => {
+            const active = totalDays > 0 && dailyRate === tier.price
+
+            return (
+              <div
+                key={tier.label}
+                className={`rounded-[14px] border p-3 text-center transition ${
+                  active
+                    ? 'border-primary/45 bg-primary/14'
+                    : 'border-transparent bg-card dark:bg-white/[0.025]'
+                }`}
+              >
+                <p className="font-inter text-[22px] font-extrabold leading-none tracking-[-0.03em] tabular-nums text-foreground dark:text-white">
+                  €{tier.price}
+                </p>
+                <p className="mt-1 font-mono text-[8px] uppercase tracking-[0.12em] text-muted-foreground dark:text-white/42">
+                  {tier.label}
+                </p>
+              </div>
+            )
+          })}
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5">
-          <Label className="font-mono text-[9px] tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <CalendarDays className="w-3 h-3" /> {t(lang,'booking.pickup')}
-          </Label>
+        <Field label={t(lang, 'booking.pickup')} icon={CalendarDays}>
           <Input
             type="date"
             value={form.start_date}
-            onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+            onChange={(event) => updateField('start_date', event.target.value)}
             required
-            className="bg-white/[0.04] border-white/[0.08] font-mono text-sm rounded-xl"
+            className="h-12 rounded-[14px] border-border bg-secondary font-mono text-sm text-foreground dark:border-white/[0.08] dark:bg-white/[0.055] dark:text-white"
           />
-        </div>
-        <div className="space-y-1.5">
-          <Label className="font-mono text-[9px] tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <CalendarDays className="w-3 h-3" /> {t(lang,'booking.return')}
-          </Label>
+        </Field>
+
+        <Field label={t(lang, 'booking.return')} icon={CalendarDays}>
           <Input
             type="date"
             value={form.end_date}
-            onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+            onChange={(event) => updateField('end_date', event.target.value)}
             required
             min={form.start_date}
-            className="bg-white/[0.04] border-white/[0.08] font-mono text-sm rounded-xl"
+            className="h-12 rounded-[14px] border-border bg-secondary font-mono text-sm text-foreground dark:border-white/[0.08] dark:bg-white/[0.055] dark:text-white"
           />
-        </div>
+        </Field>
       </div>
 
-      <div className="space-y-1.5">
-        <Label className="font-mono text-[9px] tracking-wider text-muted-foreground flex items-center gap-1.5">
-        <User className="w-3 h-3" /> {t(lang,'booking.name')}
-        </Label>
+      <Field label={t(lang, 'booking.name')} icon={User}>
         <Input
           value={form.customer_name}
-          onChange={(e) => setForm({ ...form, customer_name: e.target.value })}
+          onChange={(event) => updateField('customer_name', event.target.value)}
           required
-          className="bg-white/[0.04] border-white/[0.08] rounded-xl"
+          placeholder={isFr ? 'Nom complet' : 'Full name'}
+          className="h-12 rounded-[14px] border-border bg-secondary text-foreground placeholder:text-muted-foreground/60 dark:border-white/[0.08] dark:bg-white/[0.055] dark:text-white dark:placeholder:text-white/28"
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <Label className="font-mono text-[9px] tracking-wider text-muted-foreground flex items-center gap-1.5">
-          <Mail className="w-3 h-3" /> {t(lang,'booking.email')}
-        </Label>
+      <Field label={t(lang, 'booking.email')} icon={Mail}>
         <Input
           type="email"
           value={form.customer_email}
-          onChange={(e) => setForm({ ...form, customer_email: e.target.value })}
+          onChange={(event) => updateField('customer_email', event.target.value)}
           required
-          className="bg-white/[0.04] border-white/[0.08] rounded-xl"
+          placeholder={isFr ? 'email@exemple.com' : 'email@example.com'}
+          className="h-12 rounded-[14px] border-border bg-secondary text-foreground placeholder:text-muted-foreground/60 dark:border-white/[0.08] dark:bg-white/[0.055] dark:text-white dark:placeholder:text-white/28"
         />
-      </div>
+      </Field>
 
-      <div className="space-y-1.5">
-        <Label className="font-mono text-[9px] tracking-wider text-muted-foreground flex items-center gap-1.5">
-        <Phone className="w-3 h-3" /> {t(lang,'booking.phone')}
-        </Label>
+      <Field label={t(lang, 'booking.phone')} icon={Phone}>
         <Input
           type="tel"
           value={form.customer_phone}
-          onChange={(e) => setForm({ ...form, customer_phone: e.target.value })}
-          className="bg-white/[0.04] border-white/[0.08] rounded-xl"
+          onChange={(event) => updateField('customer_phone', event.target.value)}
+          placeholder={isFr ? '+212...' : '+212...'}
+          className="h-12 rounded-[14px] border-border bg-secondary text-foreground placeholder:text-muted-foreground/60 dark:border-white/[0.08] dark:bg-white/[0.055] dark:text-white dark:placeholder:text-white/28"
         />
-      </div>
+      </Field>
 
-      {/* Summary */}
       {totalDays > 0 && (
-        <div className="rounded-xl p-4 bg-primary/10 border border-primary/20">
-          <div className="flex justify-between items-center">
+        <div className="rounded-[18px] border border-primary/25 bg-primary/10 p-5">
+          <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="font-mono text-[9px] tracking-wider text-muted-foreground">
-                {totalDays} DAY{totalDays > 1 ? 'S' : ''} × €{dailyRate}/day
+              <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground dark:text-white/44">
+                {t(lang, 'booking.estimate_label')}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground dark:text-white/52">
+                {totalDays}{' '}
+                {totalDays > 1 ? t(lang, 'booking.days') : t(lang, 'booking.day_one')}
+                {' × €'}
+                {dailyRate}/{t(lang, 'booking.per_day_slug')}
               </p>
             </div>
-            <p className="font-syne text-2xl font-black text-primary">€{totalPrice}</p>
+
+            <p className="font-inter text-[38px] font-extrabold leading-none tracking-[-0.03em] tabular-nums text-primary">
+              €{totalPrice}
+            </p>
           </div>
         </div>
       )}
 
-      {/* Rental conditions note */}
-      <p className="font-mono text-[9px] text-muted-foreground/60 leading-relaxed">
-        {t(lang,'booking.conditions')}
+      <p className="text-[11px] leading-relaxed text-muted-foreground dark:text-white/35">
+        {t(lang, 'booking.conditions')}
       </p>
 
       <Button
         type="submit"
         disabled={loading || totalDays === 0}
-        className="w-full h-12 font-inter text-sm font-semibold rounded-full bg-primary text-primary-foreground hover:shadow-[0_0_30px_rgba(255,62,0,0.4)] transition-all duration-300"
+        className="h-12 w-full rounded-full bg-primary text-sm font-bold text-primary-foreground transition hover:shadow-[0_0_34px_rgba(255,78,28,0.32)] disabled:cursor-not-allowed disabled:opacity-45"
       >
-        {loading ? t(lang,'booking.processing') : t(lang,'booking.submit')}
+        {loading ? t(lang, 'booking.processing') : t(lang, 'booking.submit')}
       </Button>
     </form>
-  );
+  )
+}
+
+function Field({ label, icon: Icon, children }) {
+  return (
+    <div className="space-y-2">
+      <Label className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground dark:text-white/42">
+        <Icon className="h-3 w-3 text-primary/80" />
+        {label}
+      </Label>
+      {children}
+    </div>
+  )
 }

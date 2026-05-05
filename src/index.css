@@ -1,3 +1,4 @@
+/* Typography: Syne (display) + Inter Tight (UI/body) — loaded from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800;900&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 
 @tailwind base;
@@ -6,22 +7,56 @@
 
 @layer base {
   :root {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 94%;
-    --card: 240 8% 6%;
-    --card-foreground: 0 0% 94%;
-    --primary: 14 100% 55%;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Inter Tight', system-ui, sans-serif;
+
+    --background: 42 35% 96%;
+    --foreground: 222 28% 14%;
+
+    --card: 40 30% 98%;
+    --card-foreground: 222 28% 14%;
+
+    --primary: 14 100% 56%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 5% 12%;
-    --secondary-foreground: 0 0% 94%;
-    --muted: 240 5% 14%;
-    --muted-foreground: 240 5% 58%;
+
+    --secondary: 36 24% 92%;
+    --secondary-foreground: 222 28% 14%;
+
+    --muted: 36 24% 92%;
+    --muted-foreground: 220 10% 36%;
+
     --accent: 150 80% 45%;
     --accent-foreground: 0 0% 100%;
+
+    --border: 30 16% 82%;
+    --input: 30 16% 82%;
+    --ring: 14 100% 56%;
+
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.5%;
+    --foreground: 0 0% 94%;
+
+    --card: 240 7% 6%;
+    --card-foreground: 0 0% 94%;
+
+    --primary: 14 100% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 11%;
+    --secondary-foreground: 0 0% 94%;
+
+    --muted: 240 5% 13%;
+    --muted-foreground: 240 5% 58%;
+
+    --accent: 150 80% 45%;
+    --accent-foreground: 0 0% 100%;
+
     --border: 240 5% 15%;
     --input: 240 5% 15%;
-    --ring: 14 100% 55%;
-    --radius: 1rem;
+    --ring: 14 100% 56%;
   }
 
   * {
@@ -30,15 +65,21 @@
 
   html {
     scroll-behavior: smooth;
-    background: #050608;
+    background: hsl(var(--background));
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply bg-background text-foreground font-inter antialiased;
+    @apply bg-background text-foreground font-sans antialiased;
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+    font-optical-sizing: auto;
+    letter-spacing: 0.002em;
   }
 
   a {
@@ -48,21 +89,56 @@
   button {
     font-family: inherit;
   }
+
+  /* Headings default to Inter Tight (nav/footer wordmark uses Inter Tight too) */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-body);
+    letter-spacing: -0.025em;
+    text-wrap: balance;
+  }
+
+  p {
+    line-height: 1.65;
+  }
 }
 
 @layer utilities {
   .container-site {
-    @apply max-w-[1320px] mx-auto px-6 lg:px-10;
+    @apply mx-auto w-full max-w-[1480px] px-6 lg:px-10;
+  }
+
+  .container-narrow {
+    @apply mx-auto w-full max-w-[1180px] px-6 lg:px-10;
   }
 
   .glass-dark {
-    @apply bg-white/[0.045] backdrop-blur-2xl border border-white/[0.08];
+    @apply border-border bg-card/90 backdrop-blur-2xl dark:border-white/[0.08] dark:bg-white/[0.045];
   }
 
   .grid-overlay {
     background-image:
       linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
-    background-size: 64px 64px;
+    background-size: 72px 72px;
+  }
+
+  .page-fade {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255, 77, 28, 0.08), transparent 34rem),
+      hsl(var(--background));
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /** Large marketing titles: readable in light theme; optional dark:text-white on dark sections */
+  .heading-display {
+    @apply font-inter font-extrabold text-balance text-foreground;
+    letter-spacing: -0.03em;
+    line-height: 1.06;
   }
 }

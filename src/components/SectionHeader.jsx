@@ -15,7 +15,7 @@ export default function SectionHeader({ label, title, description, align = 'left
           <p className="font-mono text-[10px] tracking-[0.25em] text-primary">{label}</p>
         </div>
       )}
-      <h2 className="font-syne text-4xl md:text-5xl lg:text-6xl font-black tracking-[-0.03em] text-foreground leading-[0.92]">
+      <h2 className="font-inter text-4xl font-extrabold tracking-[-0.03em] text-foreground md:text-5xl lg:text-6xl lg:leading-[1.08]">
         {title}
       </h2>
       {description && (

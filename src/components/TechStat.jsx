@@ -12,7 +12,7 @@ export default function TechStat({ label, value, unit, delay = 0 }) {
       <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground mb-3">
         {label}
       </p>
-      <p className="font-syne text-4xl md:text-5xl font-black text-foreground">
+      <p className="font-inter text-4xl font-extrabold tabular-nums tracking-[-0.03em] text-foreground md:text-5xl">
         {value}
       </p>
       {unit && (

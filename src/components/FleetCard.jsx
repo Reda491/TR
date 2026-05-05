@@ -1,114 +1,106 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Zap, Weight, Gauge, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { ArrowUpRight, Gauge, Weight, Zap } from 'lucide-react'
+import { translateCategory, useLang } from '../lib/Lang.js'
 
 export default function FleetCard({ motorcycle, index = 0 }) {
+  const lang = useLang()
+  const isFr = lang === 'fr'
+  const performance = Math.min(Math.max(motorcycle.performance_level || 6, 1), 10)
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.08 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{
+        duration: 0.46,
+        delay: Math.min(index * 0.045, 0.22),
+        ease: [0.22, 1, 0.36, 1],
+      }}
     >
       <Link to={`/motorcycle/${motorcycle.id}`} className="group block">
-        <div className="relative overflow-hidden rounded-[18px] border border-white/[0.06] bg-[#07080d] transition-all duration-500 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(255,62,0,0.08)]">
-          {/* Category Badge */}
-          <div className="absolute top-4 left-4 z-10">
-            <span className="font-mono text-[9px] tracking-[0.2em] text-primary/80 bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-full">
-              {motorcycle.category?.toUpperCase() || 'SPORT'}
-            </span>
-          </div>
-
-          {/* Arrow icon */}
-          <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 text-primary-foreground" />
-            </div>
-          </div>
-
-          {/* Availability dot */}
-          {motorcycle.available !== false && (
-            <div className="absolute top-[52px] right-4 z-10 flex items-center gap-1.5">
-              <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                    <span className="font-mono text-[9px] tracking-wider text-accent">AVAIL.</span>
-            </div>
-          )}
-
-          {/* Image */}
-          <div className="relative aspect-[3/2] overflow-hidden bg-[#07080d]">
+        <article className="overflow-hidden rounded-[22px] border border-border bg-card transition duration-500 hover:-translate-y-1 hover:border-primary/35 hover:shadow-lg dark:border-white/[0.08] dark:bg-[#0c0d11] dark:hover:shadow-[0_28px_80px_rgba(0,0,0,0.5)]">
+          <div className="relative aspect-[1.33] overflow-hidden bg-muted dark:bg-[#090a0e]">
             {motorcycle.image_url ? (
               <img
                 src={motorcycle.image_url}
                 alt={motorcycle.name}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.035]"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-secondary">
-                <Gauge className="w-12 h-12 text-muted-foreground/20" />
+              <div className="flex h-full w-full items-center justify-center">
+                <Gauge className="h-12 w-12 text-muted-foreground/40 dark:text-white/20" />
               </div>
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07080d] via-transparent to-transparent opacity-90" />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent dark:from-[#0c0d11] dark:via-[#0c0d11]/18" />
+
+            <div className="absolute left-5 top-5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 font-mono text-[8px] uppercase tracking-[0.24em] text-primary">
+              {translateCategory(lang, motorcycle.category)}
+            </div>
+
+            {motorcycle.available !== false && (
+              <div className="absolute right-5 top-6 flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <span className="font-mono text-[8px] font-semibold uppercase tracking-[0.16em] text-emerald-400">
+                  {isFr ? 'DISPO.' : 'Avail.'}
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* Content */}
-          <div className="p-5">
-            <div className="flex items-end justify-between mb-5">
+          <div className="p-5 md:p-6">
+            <div className="mb-5 grid grid-cols-[1fr_auto] gap-4">
               <div>
-                <p className="font-mono text-[9px] tracking-[0.2em] text-muted-foreground mb-1">
-                  {motorcycle.brand?.toUpperCase()}
+                <p className="mb-2 font-mono text-[8px] uppercase tracking-[0.28em] text-muted-foreground dark:text-white/32">
+                  {motorcycle.brand || 'Motorcycle'}
                 </p>
-                <h3 className="font-syne text-xl font-black tracking-tight text-foreground group-hover:text-primary transition-colors duration-300">
+                <h3 className="max-w-[220px] font-inter text-[22px] font-bold leading-snug tracking-[-0.02em] text-foreground transition group-hover:text-primary dark:text-white">
                   {motorcycle.name}
                 </h3>
               </div>
-              <div className="text-right">
-                <p className="font-syne text-[40px] font-black text-primary leading-none">
+
+              <div className="pt-6 text-right">
+                <p className="font-inter text-[34px] font-extrabold leading-none tracking-[-0.03em] tabular-nums text-primary">
                   €{motorcycle.price_per_day}
                 </p>
-                <p className="font-mono text-[9px] tracking-wider text-muted-foreground mt-0.5">/day</p>
+                <p className="mt-1 font-mono text-[8px] text-muted-foreground dark:text-white/45">
+                  {isFr ? '/jour' : '/day'}
+                </p>
               </div>
             </div>
 
-            {/* Stats row */}
-            <div className="flex items-center gap-5 pt-4 border-t border-white/[0.06]">
-              <div className="flex items-center gap-1.5">
-                <Zap className="w-3 h-3 text-primary/70" />
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  {motorcycle.horsepower || '—'} hp
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Weight className="w-3 h-3 text-primary/70" />
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  {motorcycle.weight || '—'} kg
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Gauge className="w-3 h-3 text-primary/70" />
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  {motorcycle.engine_cc || '—'} cc
-                </span>
+            <div className="flex items-center gap-4 border-t border-border pt-4 dark:border-white/[0.075]">
+              <Spec icon={Zap} value={`${motorcycle.horsepower || '—'} hp`} />
+              <Spec icon={Weight} value={`${motorcycle.weight || '—'} kg`} />
+              <Spec icon={Gauge} value={`${motorcycle.engine_cc || '—'} cc`} />
+
+              <div className="ml-auto hidden items-center gap-1 sm:flex">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      i < performance ? 'bg-primary' : 'bg-border dark:bg-white/10'
+                    }`}
+                  />
+                ))}
               </div>
 
-              {/* Performance bar */}
-              {motorcycle.performance_level && (
-                <div className="ml-auto flex items-center gap-2">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 10 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                          i < motorcycle.performance_level ? 'bg-primary' : 'bg-white/10'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              <ArrowUpRight className="ml-auto h-4 w-4 text-muted-foreground transition group-hover:text-primary dark:text-white/30 sm:ml-2" />
             </div>
           </div>
-        </div>
+        </article>
       </Link>
     </motion.div>
-  );
+  )
+}
+
+function Spec({ icon: Icon, value }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <Icon className="h-3.5 w-3.5 text-primary/75" />
+      <span className="font-mono text-[9px] text-muted-foreground dark:text-white/45">{value}</span>
+    </div>
+  )
 }

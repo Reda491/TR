@@ -1,147 +1,159 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useLang, setLang, t } from '../lib/Lang.js';
-import { useTheme, toggleTheme } from '../lib/theme';
-import { Sun, Moon } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Menu, Moon, Sun, X } from 'lucide-react'
+import { useLang, setLang, t } from '../lib/Lang.js'
+import { useTheme, toggleTheme } from '../lib/theme'
 
 const NAV_PATHS = [
   { key: 'fleet', path: '/fleet' },
   { key: 'offers', path: '/offers' },
   { key: 'about', path: '/about' },
-];
+]
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const location = useLocation();
-  const lang = useLang();
-  const theme = useTheme();
+  const [scrolled, setScrolled] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const location = useLocation()
+  const lang = useLang()
+  const theme = useTheme()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    const onScroll = () => setScrolled(window.scrollY > 24)
+    window.addEventListener('scroll', onScroll)
+    onScroll()
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
-  useEffect(() => { setMobileOpen(false); }, [location]);
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [location.pathname])
 
   return (
     <>
       <motion.nav
-        initial={{ y: -20, opacity: 0 }}
+        initial={{ y: -16, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-        className={`fixed top-0 left-0 right-0 z-50 border-t-2 border-primary transition-all duration-500 ${
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className={`fixed left-0 right-0 top-0 z-50 border-t-2 border-primary transition-all duration-500 ${
           scrolled
-            ? 'bg-background/70 backdrop-blur-2xl border-b border-white/[0.04]'
-            : 'bg-transparent'
+            ? 'bg-background/85 border-b border-border backdrop-blur-2xl'
+            : 'bg-transparent border-b border-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="flex items-center justify-between h-[72px]">
-            {/* Logo */}
-            <Link to="/" className="group flex items-center gap-2">
-              <div className="relative">
-                <span className="font-syne font-extrabold text-[30px] tracking-[-0.04em] text-foreground">Tenere</span>
-                <span className="font-syne font-extrabold text-[30px] tracking-[-0.04em] text-primary">Riders</span>
-              </div>
+        <div className="container-site">
+          <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center">
+            <Link
+              to="/"
+              className="flex max-w-[min(100%,280px)] items-center gap-2.5 font-inter text-[22px] font-semibold tracking-[-0.015em] text-foreground md:gap-3 md:text-[24px]"
+              aria-label={t(lang, 'nav.aria_home')}
+            >
+              <img
+                src="/logo_white.png"
+                alt=""
+                width={40}
+                height={40}
+                className="h-9 w-9 shrink-0 object-contain md:h-10 md:w-10"
+                decoding="async"
+              />
+              <span className="min-w-0 leading-none">
+                Tenere<span className="text-primary">Riders</span>
+              </span>
             </Link>
 
-            {/* Center Nav */}
-            <div className="hidden md:flex items-center gap-1 glass rounded-full px-2 py-1.5">
-              {NAV_PATHS.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`relative px-5 py-2 rounded-full text-sm font-inter font-medium transition-all duration-300 ${
-                    location.pathname === link.path
-                      ? 'text-foreground bg-white/[0.08]'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {t(lang, `nav.${link.key}`)}
-                  {location.pathname === link.path && (
-                    <motion.div
-                      layoutId="nav-pill"
-                      className="absolute inset-0 rounded-full bg-white/[0.08] -z-10"
-                      transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                    />
-                  )}
-                </Link>
-              ))}
+            <div className="hidden items-center gap-1 rounded-full border border-border bg-card/70 px-2 py-1.5 backdrop-blur-2xl md:flex">
+              {NAV_PATHS.map((link) => {
+                const active = location.pathname === link.path
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`relative rounded-full px-5 py-2 font-inter text-[13px] font-semibold tracking-[0.01em] transition-colors ${
+                      active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="nav-active"
+                        className="absolute inset-0 rounded-full bg-secondary"
+                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      />
+                    )}
+                    <span className="relative z-10">{t(lang, `nav.${link.key}`)}</span>
+                  </Link>
+                )
+              })}
             </div>
 
-            {/* CTA + Lang */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden items-center justify-end gap-3 md:flex">
               <button
                 onClick={toggleTheme}
-                className="w-9 h-9 flex items-center justify-center rounded-full border border-white/10 hover:border-primary/40 hover:text-primary text-muted-foreground transition-all duration-200"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-primary/45 hover:text-foreground"
+                aria-label={t(lang, 'nav.aria_toggle_theme')}
               >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </button>
+
               <button
                 onClick={() => setLang(lang === 'en' ? 'fr' : 'en')}
-                className="flex items-center gap-1 font-mono text-[10px] tracking-[0.15em] px-3 py-1.5 rounded-full border border-white/10 hover:border-primary/40 hover:text-primary text-muted-foreground transition-all duration-200"
+                className="rounded-full border border-border px-3.5 py-2 font-mono text-[9px] tracking-[0.16em] text-muted-foreground transition hover:border-primary/45"
               >
-                <span className={lang === 'en' ? 'text-primary font-bold' : ''}>EN</span>
-                <span className="opacity-30">/</span>
-                <span className={lang === 'fr' ? 'text-primary font-bold' : ''}>FR</span>
+                <span className={lang === 'en' ? 'font-bold text-primary' : ''}>EN</span>
+                <span className="mx-2 opacity-35">/</span>
+                <span className={lang === 'fr' ? 'font-bold text-primary' : ''}>FR</span>
               </button>
+
               <Link
                 to="/fleet"
-                className="group relative overflow-hidden font-inter text-sm font-semibold px-5 py-2.5 rounded-full bg-primary text-primary-foreground transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,62,0,0.4)]"
+                className="rounded-full bg-primary px-6 py-2.5 font-inter text-[13px] font-bold tracking-[0.01em] text-primary-foreground shadow-[0_0_0_rgba(255,78,28,0)] transition duration-300 hover:shadow-[0_0_34px_rgba(255,78,28,0.32)]"
               >
-                <span className="relative z-10">{lang === 'fr' ? 'Réserver' : 'Book a Ride'}</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                {t(lang, 'nav.book')}
               </Link>
             </div>
 
-            {/* Mobile Toggle */}
-            <button className="md:hidden text-foreground p-2" onClick={() => setMobileOpen(!mobileOpen)}>
-              {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <button
+              className="ml-auto flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground md:hidden"
+              onClick={() => setMobileOpen((value) => !value)}
+              aria-label={
+                mobileOpen ? t(lang, 'nav.aria_menu_close') : t(lang, 'nav.aria_menu_open')
+              }
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-2xl pt-20"
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.28 }}
+            className="fixed inset-0 z-40 bg-background/95 pt-28 backdrop-blur-2xl md:hidden"
           >
-            <div className="flex flex-col items-center gap-6 py-14">
-              {NAV_PATHS.map((link, i) => (
-                <motion.div
+            <div className="flex flex-col items-center gap-8">
+              {NAV_PATHS.map((link) => (
+                <Link
                   key={link.path}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.08 }}
+                  to={link.path}
+                  className="font-inter text-5xl font-bold tracking-[-0.03em] text-foreground"
                 >
-                  <Link
-                    to={link.path}
-                    className={`font-syne text-4xl font-black tracking-tight transition-colors ${
-                      location.pathname === link.path ? 'text-primary' : 'text-foreground'
-                    }`}
-                  >
-                    {t(lang, `nav.${link.key}`)}
-                  </Link>
-                </motion.div>
-              ))}
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-                <Link to="/fleet" className="mt-4 font-inter text-sm font-semibold px-8 py-3.5 rounded-full bg-primary text-primary-foreground">
-                  Book a Ride
+                  {t(lang, `nav.${link.key}`)}
                 </Link>
-              </motion.div>
+              ))}
+
+              <Link
+                to="/fleet"
+                className="mt-4 rounded-full bg-primary px-8 py-4 text-sm font-bold text-primary-foreground"
+              >
+                {t(lang, 'nav.book')}
+              </Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </>
-  );
+  )
 }

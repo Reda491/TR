@@ -1,84 +1,281 @@
 /**
- * Demo fleet for the rental UI.
- * JSON schema mirrored for Base44: `entities/schemas/motorcycle.schema.json`
+ * Tenere Riders fleet data.
+ * Riding categories:
+ * - Tarmac
+ * - Rolling Track
+ * - All Terrain
+ * - Offroad
  */
 
-/** @typedef {'asphalt' | 'gravel' | 'touring' | 'urban'} Terrain */
+export const TERRAINS = ['Tarmac', 'Rolling Track', 'All Terrain', 'Offroad']
 
-export const TERRAINS = /** @type {const} */ ([
-  'Tarmac',
-  'Dirt',
-  'Coastal',
-])
-
-/** @typedef {Object} Motorcycle
- * @property {string} id
- * @property {string} name
- * @property {string} brand
- * @property {number} year
- * @property {Terrain} terrain
- * @property {number} engineCc
- * @property {number} dailyRate
- * @property {string} image
- * @property {string} description
- */
-
-/** @type {Motorcycle[]} */
 export const MOTORCYCLES = [
   {
-    id: 'ktm390-2026',
+    id: 'ktm-390-adv-r-2026',
     name: 'KTM 390 ADV R (2026)',
     brand: 'KTM',
     year: 2026,
-    terrain: 'Dirt',
+    terrain: 'Offroad',
     category: 'Adventure',
     engineCc: 399,
     horsepower: 46,
+    torque: 39,
     weight: 158,
+    seat_height: 885,
+    fuel_range: 350,
     performance_level: 7,
     dailyRate: 90,
-    image:
-      'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=80',
+    price_1_3_days: 100,
+    price_3_5_days: 95,
+    price_5plus_days: 90,
+    image: '/fleet/ktm-390-adv-r-2026.png',
     description:
-      'Lightweight and sharp for daily city riding and off-road weekend escapes.',
+      'Rally-inspired lightweight adventure bike with 21/18 inch wheels, long-travel suspension, and strong off-road capability.',
   },
   {
-    id: 'ktm890-2025',
+    id: 'ktm-890-adv-r-2025',
     name: 'KTM 890 ADV R (2025)',
     brand: 'KTM',
     year: 2025,
-    terrain: 'Coastal',
+    terrain: 'Offroad',
     category: 'Adventure',
-    engineCc: 890,
-    horsepower: 105,
-    weight: 218,
+    engineCc: 889,
+    horsepower: 103,
+    torque: 100,
+    weight: 210,
+    seat_height: 880,
+    fuel_range: 400,
     performance_level: 9,
     dailyRate: 130,
-    image:
-      'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1200&q=80',
+    price_1_3_days: 150,
+    price_3_5_days: 140,
+    price_5plus_days: 130,
+    image: '/fleet/ktm-890-adv-r-2025.png',
     description:
-      'Premium travel-enduro for long distance routes and aggressive mountain riding.',
+      'High-performance middleweight adventure motorcycle with rally DNA, advanced electronics, and serious off-road suspension.',
   },
   {
-    id: 'ktm390-2025',
+    id: 'ktm-390-adv-2025',
     name: 'KTM 390 ADV (2025)',
     brand: 'KTM',
     year: 2025,
-    terrain: 'Tarmac',
+    terrain: 'Rolling Track',
     category: 'Adventure',
     engineCc: 373,
     horsepower: 44,
+    torque: 37,
     weight: 177,
+    seat_height: 855,
+    fuel_range: 320,
     performance_level: 6,
     dailyRate: 70,
-    image:
-      'https://images.unsplash.com/photo-1568772585407-9361f9bf3a87?auto=format&fit=crop&w=1200&q=80',
+    price_1_3_days: 80,
+    price_3_5_days: 75,
+    price_5plus_days: 70,
+    image: '/fleet/ktm-390-adv-2025.png',
     description:
-      'Balanced entry adventure bike with daily comfort and proven reliability.',
+      'Versatile lightweight adventure bike for tarmac, scenic roads, and light rolling tracks.',
+  },
+  {
+    id: 'kove-450-rally-2026',
+    name: 'Kove 450 Rally (2026)',
+    brand: 'Kove',
+    year: 2026,
+    terrain: 'Offroad',
+    category: 'Rally',
+    engineCc: 450,
+    horsepower: 52,
+    torque: 40,
+    weight: 118,
+    seat_height: 960,
+    fuel_range: 350,
+    performance_level: 8,
+    dailyRate: 165,
+    price_1_3_days: 165,
+    price_3_5_days: 165,
+    price_5plus_days: 165,
+    image: '/fleet/kove-450-rally-2026.png',
+    description:
+      'Focused rally machine with lightweight chassis, large fuel range, and strong off-road character.',
+  },
+  {
+    id: 'kove-800x-2026',
+    name: 'Kove 800X (2026)',
+    brand: 'Kove',
+    year: 2026,
+    terrain: 'All Terrain',
+    category: 'Adventure',
+    engineCc: 799,
+    horsepower: 94,
+    torque: 79,
+    weight: 195,
+    seat_height: 875,
+    fuel_range: 380,
+    performance_level: 8,
+    dailyRate: 100,
+    price_1_3_days: 120,
+    price_3_5_days: 110,
+    price_5plus_days: 100,
+    image: '/fleet/kove-800x-2026.webp',
+    description:
+      'Lightweight mid-weight adventure motorcycle for mixed terrain, touring roads, and technical tracks.',
+  },
+  {
+    id: 'cf-mt450',
+    name: 'CF MT450',
+    brand: 'CF Moto',
+    year: 2025,
+    terrain: 'All Terrain',
+    category: 'Adventure',
+    engineCc: 449,
+    horsepower: 44,
+    torque: 44,
+    weight: 175,
+    seat_height: 820,
+    fuel_range: 350,
+    performance_level: 6,
+    dailyRate: 75,
+    price_1_3_days: 90,
+    price_3_5_days: 85,
+    price_5plus_days: 75,
+    image: '/fleet/cf-mt450.png',
+    description:
+      'Accessible adventure touring motorcycle for multi-terrain use, light off-road routes, and comfortable travel.',
+  },
+  {
+    id: 'royal-enfield-himalayan-450-2025',
+    name: 'Royal Enfield Himalayan 450 (2025)',
+    brand: 'Royal Enfield',
+    year: 2025,
+    terrain: 'All Terrain',
+    category: 'Adventure',
+    engineCc: 452,
+    horsepower: 39.5,
+    torque: 40,
+    weight: 196,
+    seat_height: 825,
+    fuel_range: 400,
+    performance_level: 5,
+    dailyRate: 65,
+    price_1_3_days: 85,
+    price_3_5_days: 75,
+    price_5plus_days: 65,
+    image: '/fleet/royal-enfield-himalayan-450-2025.png',
+    description:
+      'Purpose-built adventure motorcycle for touring, mountain roads, and accessible mixed-terrain exploration.',
+  },
+  {
+    id: 'royal-enfield-himalayan-411-2023',
+    name: 'Royal Enfield Himalayan 411 (2023)',
+    brand: 'Royal Enfield',
+    year: 2023,
+    terrain: 'Rolling Track',
+    category: 'Adventure',
+    engineCc: 411,
+    horsepower: 24,
+    torque: 32,
+    weight: 199,
+    seat_height: 800,
+    fuel_range: 400,
+    performance_level: 4,
+    dailyRate: 45,
+    price_1_3_days: 55,
+    price_3_5_days: 50,
+    price_5plus_days: 45,
+    image: '/fleet/royal-enfield-himalayan-411-2023.png',
+    description:
+      'Simple, rugged adventure-touring bike suited for relaxed touring, mountain roads, and light tracks.',
+  },
+  {
+    id: 'royal-enfield-classic-350',
+    name: 'Royal Enfield Classic 350',
+    brand: 'Royal Enfield',
+    year: 2023,
+    terrain: 'Tarmac',
+    category: 'Cruiser',
+    engineCc: 349,
+    horsepower: 20,
+    torque: 27,
+    weight: 195,
+    seat_height: 805,
+    fuel_range: 350,
+    performance_level: 3,
+    dailyRate: 35,
+    price_1_3_days: 55,
+    price_3_5_days: 45,
+    price_5plus_days: 35,
+    image: '/fleet/royal-enfield-classic-350.png',
+    description:
+      'Modern-retro road motorcycle for calm city rides, tarmac cruising, and scenic routes.',
+  },
+  {
+    id: 'royal-enfield-scram-411-2023',
+    name: 'Royal Enfield Scram 411 (2023)',
+    brand: 'Royal Enfield',
+    year: 2023,
+    terrain: 'Rolling Track',
+    category: 'Scrambler',
+    engineCc: 411,
+    horsepower: 24,
+    torque: 32,
+    weight: 185,
+    seat_height: 795,
+    fuel_range: 350,
+    performance_level: 4,
+    dailyRate: 45,
+    price_1_3_days: 55,
+    price_3_5_days: 50,
+    price_5plus_days: 45,
+    image: '/fleet/royal-enfield-scram-411-2023.png',
+    description:
+      'Urban scrambler derived from the Himalayan, suitable for city use, dry tracks, and light exploration.',
+  },
+  {
+    id: 'ktm-890-adv-2023',
+    name: 'KTM 890 ADV (2023)',
+    brand: 'KTM',
+    year: 2023,
+    terrain: 'All Terrain',
+    category: 'Adventure',
+    engineCc: 889,
+    horsepower: 105,
+    torque: 100,
+    weight: 210,
+    seat_height: 850,
+    fuel_range: 400,
+    performance_level: 8,
+    dailyRate: 90,
+    price_1_3_days: 100,
+    price_3_5_days: 95,
+    price_5plus_days: 90,
+    image: '/fleet/ktm-890-adv-2023.jpg',
+    description:
+      'Versatile mid-weight adventure motorcycle for touring, mountain roads, and mixed Moroccan terrain.',
+  },
+  {
+    id: 'bmw-gs850-trophy-2023',
+    name: 'BMW GS850 Trophy (2023)',
+    brand: 'BMW',
+    year: 2023,
+    terrain: 'All Terrain',
+    category: 'Touring',
+    engineCc: 853,
+    horsepower: 95,
+    torque: 92,
+    weight: 229,
+    seat_height: 860,
+    fuel_range: 400,
+    performance_level: 8,
+    dailyRate: 90,
+    price_1_3_days: 100,
+    price_3_5_days: 95,
+    price_5plus_days: 90,
+    image: '/fleet/bmw-gs850-trophy-2023.png',
+    description:
+      'Comfortable mid-weight adventure tourer with GS character, suited for long-distance touring and rougher roads.',
   },
 ]
 
-/** @param {string} id */
 export function getMotorcycleById(id) {
-  return MOTORCYCLES.find((m) => m.id === id)
+  return MOTORCYCLES.find((motorcycle) => motorcycle.id === id)
 }

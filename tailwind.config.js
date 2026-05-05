@@ -12,8 +12,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        /** Body, UI, forms, buttons — Inter Tight */
+        sans: ['Inter Tight', 'system-ui', 'sans-serif'],
+        /** Display — Syne (pair with font-syne) */
         syne: ['Syne', 'sans-serif'],
-        inter: ['Inter Tight', 'sans-serif'],
+        /** Alias for Inter Tight (same as sans) */
+        inter: ['Inter Tight', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {

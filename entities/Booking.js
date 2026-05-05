@@ -10,6 +10,7 @@
  * @property {string} endDate
  * @property {string} fullName
  * @property {string} email
+ * @property {string} [phone]
  * @property {string} [notes]
  */
 
