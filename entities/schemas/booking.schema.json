@@ -1,0 +1,74 @@
+{
+  "name": "Booking",
+  "type": "object",
+  "properties": {
+    "motorcycle_id": {
+      "type": "string",
+      "title": "Motorcycle ID"
+    },
+    "motorcycle_name": {
+      "type": "string",
+      "title": "Motorcycle Name"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Start Date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "title": "End Date"
+    },
+    "total_days": {
+      "type": "number",
+      "title": "Total Days"
+    },
+    "total_price": {
+      "type": "number",
+      "title": "Total Price (€)"
+    },
+    "customer_name": {
+      "type": "string",
+      "title": "Customer Name"
+    },
+    "customer_email": {
+      "type": "string",
+      "title": "Customer Email"
+    },
+    "customer_phone": {
+      "type": "string",
+      "title": "Customer Phone"
+    },
+    "extras": {
+      "type": "array",
+      "title": "Extras",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "pending",
+        "confirmed",
+        "active",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "motorcycle_id",
+    "start_date",
+    "end_date",
+    "customer_name",
+    "customer_email"
+  ]
+}

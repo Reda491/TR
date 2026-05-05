@@ -1,0 +1,112 @@
+{
+  "name": "Motorcycle",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Name"
+    },
+    "brand": {
+      "type": "string",
+      "title": "Brand"
+    },
+    "model": {
+      "type": "string",
+      "title": "Model"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Sport",
+        "Adventure",
+        "Cruiser",
+        "Touring",
+        "Naked",
+        "Enduro",
+        "Rally",
+        "Scrambler"
+      ]
+    },
+    "terrain": {
+      "type": "string",
+      "title": "Terrain",
+      "enum": ["Tarmac", "Dirt", "Coastal", "All-Terrain"]
+    },
+    "engine_cc": {
+      "type": "number",
+      "title": "Engine CC"
+    },
+    "horsepower": {
+      "type": "number",
+      "title": "Horsepower"
+    },
+    "torque": {
+      "type": "number",
+      "title": "Torque (Nm)"
+    },
+    "weight": {
+      "type": "number",
+      "title": "Weight (kg)"
+    },
+    "seat_height": {
+      "type": "number",
+      "title": "Seat Height (mm)"
+    },
+    "fuel_range": {
+      "type": "number",
+      "title": "Fuel Range (km)"
+    },
+    "price_per_day": {
+      "type": "number",
+      "title": "Starting Price/Day (€)"
+    },
+    "price_1_3_days": {
+      "type": "number",
+      "title": "Price 1–3 Days (€/day)"
+    },
+    "price_3_5_days": {
+      "type": "number",
+      "title": "Price 3–5 Days (€/day)"
+    },
+    "price_5plus_days": {
+      "type": "number",
+      "title": "Price 5+ Days (€/day)"
+    },
+    "image_url": {
+      "type": "string",
+      "title": "Image URL"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "includes_gps": {
+      "type": "boolean",
+      "title": "Includes GPS",
+      "default": false
+    },
+    "includes_panniers": {
+      "type": "boolean",
+      "title": "Includes Panniers",
+      "default": false
+    },
+    "includes_insurance": {
+      "type": "boolean",
+      "title": "Includes Insurance",
+      "default": true
+    },
+    "available": {
+      "type": "boolean",
+      "title": "Available",
+      "default": true
+    },
+    "performance_level": {
+      "type": "number",
+      "title": "Performance Level (1-10)",
+      "minimum": 1,
+      "maximum": 10
+    }
+  },
+  "required": ["name", "brand", "category", "engine_cc", "price_per_day"]
+}

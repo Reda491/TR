@@ -1,0 +1,54 @@
+{
+  "name": "Offer",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "discount_percent": {
+      "type": "number",
+      "title": "Discount Percent"
+    },
+    "image_url": {
+      "type": "string",
+      "title": "Image URL"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date",
+      "title": "Valid From"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date",
+      "title": "Valid Until"
+    },
+    "terrain_type": {
+      "type": "string",
+      "title": "Terrain Type",
+      "enum": ["Tarmac", "Dirt", "Coastal", "All-Terrain", "Any"]
+    },
+    "min_days": {
+      "type": "number",
+      "title": "Minimum Days"
+    },
+    "active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "included_motorcycles": {
+      "type": "array",
+      "title": "Included Motorcycle IDs",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": ["title", "description"]
+}
