@@ -15,21 +15,119 @@ const BG_COLORS = [
 
 const RIDING_TYPES = [
   { key: 'Tarmac', label: 'Tarmac' },
-  { key: 'Rolling Track', label: 'Rolling Track' },
   { key: 'All Terrain', label: 'All Terrain' },
   { key: 'Offroad', label: 'Offroad' },
 ]
 
 /** Vertical spacing between model lines in the stack (px) */
 const LIST_LINE_STEP = 56
+const COUNT_MS = 720
+
+function sortMotorcyclesForShowcase(list) {
+  const terrainOrder = RIDING_TYPES.map((t) => t.key)
+
+  const rankTerrain = (terrain) => {
+    const idx = terrainOrder.findIndex(
+      (t) => normalize(t) === normalize(normalizeShowcaseTerrain(terrain))
+    )
+    return idx === -1 ? terrainOrder.length + 50 : idx
+  }
+
+  return [...list].sort((a, b) => {
+    const terrainDelta = rankTerrain(a.terrain) - rankTerrain(b.terrain)
+    if (terrainDelta !== 0) return terrainDelta
+
+    const perfDelta = Number(b.performance_level ?? 0) - Number(a.performance_level ?? 0)
+    if (perfDelta !== 0) return perfDelta
+
+    return String(a.name ?? '').localeCompare(String(b.name ?? ''), undefined, {
+      sensitivity: 'base',
+    })
+  })
+}
+
+function showcaseSectionVh(itemCount) {
+  if (itemCount <= 1) return 360
+  return 100 + (itemCount - 1) * 103
+}
+
+function magneticProgress(progress) {
+  const nearest = Math.round(progress)
+  const distance = Math.abs(progress - nearest)
+  const t = Math.max(0, Math.min(1, 1 - distance / 0.34))
+  const eased = t * t * (3 - 2 * t)
+  return progress + (nearest - progress) * eased * 0.26
+}
+
+function easeOutCubic(t) {
+  const u = 1 - t
+  return 1 - u * u * u
+}
+
+function parseNumericSpec(raw) {
+  if (raw === null || raw === undefined || raw === '' || raw === '—') return null
+  if (typeof raw === 'number' && Number.isFinite(raw)) return raw
+  const s = String(raw).replace(',', '.')
+  const n = Number(s.replace(/[^\d.-]/g, ''))
+  return Number.isFinite(n) ? n : null
+}
+
+function nonNumericSpecDisplay(rawValue) {
+  if (rawValue === null || rawValue === undefined || rawValue === '' || rawValue === '—') {
+    return '—'
+  }
+  return String(rawValue)
+}
+
+function AnimatedSpecNumber({ motorcycleId, rawValue, className }) {
+  const parsed = parseNumericSpec(rawValue)
+  const [display, setDisplay] = useState(() =>
+    parsed === null ? nonNumericSpecDisplay(rawValue) : '0'
+  )
+
+  const floatingRef = useRef(null)
+  const rafRef = useRef(0)
+
+  useEffect(() => {
+    cancelAnimationFrame(rafRef.current)
+
+    if (parsed === null) {
+      setDisplay(nonNumericSpecDisplay(rawValue))
+      floatingRef.current = null
+      return undefined
+    }
+
+    const from = floatingRef.current === null ? 0 : floatingRef.current
+    const t0 = performance.now()
+
+    const step = (now) => {
+      const u = Math.min(1, (now - t0) / COUNT_MS)
+      const val = Math.round(from + (parsed - from) * easeOutCubic(u))
+      setDisplay(String(val))
+      floatingRef.current = val
+      if (u < 1) rafRef.current = requestAnimationFrame(step)
+      else {
+        floatingRef.current = parsed
+        setDisplay(String(Math.round(parsed)))
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(rafRef.current)
+  }, [motorcycleId, parsed, rawValue])
+
+  return <span className={className}>{display}</span>
+}
 
 export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
   const sectionRef = useRef(null)
   const [progressIndex, setProgressIndex] = useState(0)
 
-  const items = useMemo(() => motorcycles.slice(0, 8), [motorcycles])
+  const items = useMemo(() => sortMotorcyclesForShowcase(motorcycles), [motorcycles])
   const activeIndex = Math.min(items.length - 1, Math.max(0, Math.round(progressIndex)))
   const active = items[activeIndex]
+  const progressRatio = Math.min(Math.max(progressIndex / Math.max(items.length - 1, 1), 0), 1)
+  const sectionMinHeightVh = useMemo(() => showcaseSectionVh(items.length), [items.length])
 
   useEffect(() => {
     let raf = null
@@ -60,10 +158,17 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
 
   if (!items.length || !active) return null
 
-  const bg = interpolateColor(BG_COLORS, progressIndex)
+  const colorProgress =
+    (progressIndex / Math.max(items.length - 1, 1)) * Math.max(BG_COLORS.length - 1, 1)
+  const bg = interpolateColor(BG_COLORS, colorProgress)
+  const bikeVisualProgress = magneticProgress(progressIndex)
 
   return (
-    <section ref={sectionRef} className="relative h-[820vh] border-y border-white/[0.08]">
+    <section
+      ref={sectionRef}
+      className="relative border-y border-white/[0.08]"
+      style={{ minHeight: `${sectionMinHeightVh}vh` }}
+    >
       <div
         className="sticky top-0 h-screen overflow-hidden transition-[background-color] duration-500 ease-out"
         style={{
@@ -71,42 +176,45 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
           ...{ '--motor-showcase-copy-inset': 'max(5.75rem, 44%)' },
         }}
       >
-        <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-40 bg-gradient-to-b from-[#050608] via-[#050608]/55 to-transparent"
-          style={{ height: 'clamp(5.5rem, 14vh, 10rem)' }}
-        />
-
         {/* LEFT RIDING CATEGORY NAV */}
-        <div className="absolute left-0 top-0 z-30 hidden h-full w-[86px] border-r border-white/28 lg:block">
-          <div className="absolute left-[43px] top-0 h-full w-px bg-white/28" />
+        <div className="absolute left-0 top-0 z-30 hidden h-full w-[86px] border-r border-white/18 lg:block">
+          {/* Scroll rail track */}
+          <div className="absolute left-[43px] top-0 h-full w-px bg-black/35" />
+          {/* Scroll progress fill */}
+          <div
+            className="absolute left-[43px] top-0 w-px bg-white/95 transition-[height] duration-200 ease-out"
+            style={{ height: `${progressRatio * 100}%` }}
+          />
 
-          <div className="absolute left-0 top-1/2 flex -translate-y-1/2 flex-col gap-14">
+          <div className="absolute inset-y-0 left-0 flex flex-col justify-evenly py-14">
             {RIDING_TYPES.map((type) => {
-              const isActive = normalize(active.terrain) === normalize(type.key)
+              const isActive =
+                normalize(normalizeShowcaseTerrain(active.terrain)) === normalize(type.key)
 
               return (
                 <button
                   key={type.key}
                   onClick={() => {
                     const targetIndex = items.findIndex(
-                      (moto) => normalize(moto.terrain) === normalize(type.key)
+                      (moto) =>
+                        normalize(normalizeShowcaseTerrain(moto.terrain)) === normalize(type.key)
                     )
 
                     if (targetIndex !== -1) {
                       scrollToMoto(sectionRef.current, targetIndex, items.length)
                     }
                   }}
-                  className="group flex h-8 items-center gap-4 pl-8"
+                  className="group flex h-10 items-center gap-4 pl-8"
                 >
                   <span
                     className={`h-px transition-all duration-300 ${
-                      isActive ? 'w-10 bg-white' : 'w-5 bg-white/22'
+                      isActive ? 'w-10 bg-white' : 'w-5 bg-white/20'
                     }`}
                   />
 
                   <span
                     className={`origin-left -rotate-90 whitespace-nowrap font-mono text-[9px] font-semibold uppercase tracking-[0.2em] transition ${
-                      isActive ? 'text-white' : 'text-white/25'
+                      isActive ? 'text-white' : 'text-white/30'
                     }`}
                   >
                     {type.label}
@@ -120,7 +228,7 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
         {/* MOTORCYCLES */}
         <div className="absolute inset-0 z-10">
           {items.map((moto, index) => {
-            const offset = index - progressIndex
+            const offset = index - bikeVisualProgress
             const dist = Math.abs(offset)
             const bikeTranslateY = offset * 108
             const bikeOpacity = Math.max(0, 1 - dist * 0.78)
@@ -130,7 +238,7 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
             return (
               <div
                 key={moto.id}
-                className="motor-showcase-bike-x absolute top-[56%] left-[6%] sm:left-[5vw] lg:-translate-x-1/2"
+                className="motor-showcase-bike-x absolute top-[56%] left-[6%] sm:left-[5vw] lg:top-1/2 lg:-translate-x-1/2"
                 style={{
                   opacity: bikeOpacity,
                   zIndex: 20 - Math.abs(Math.round(offset)),
@@ -196,9 +304,9 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
             </div>
 
             <div className="flex shrink-0 items-center gap-5 border-l border-white/[0.08] pl-6 max-[1100px]:gap-3 max-[1100px]:pl-4 xl:gap-8 xl:pl-8 2xl:gap-10">
-              <Spec value={active.engine_cc || '—'} label="CC" />
-              <Spec value={active.seat_height || '—'} label="Seat" />
-              <Spec value={active.horsepower || '—'} label="HP" />
+              <Spec motorcycleId={active.id} rawValue={active.engine_cc} label="CC" />
+              <Spec motorcycleId={active.id} rawValue={active.seat_height} label="Seat" />
+              <Spec motorcycleId={active.id} rawValue={active.horsepower} label="HP" />
             </div>
           </div>
         </div>
@@ -255,12 +363,14 @@ function scrollToMoto(section, index, total) {
   })
 }
 
-function Spec({ value, label }) {
+function Spec({ motorcycleId, rawValue, label }) {
   return (
     <div className="min-w-0 max-w-[5.25rem] text-center text-white sm:max-w-[6rem] xl:max-w-none">
-      <span className="font-inter text-[clamp(1.375rem,min(8vw,5.5vmin),2.75rem)] font-extrabold leading-none tracking-[-0.03em] tabular-nums">
-        {value}
-      </span>
+      <AnimatedSpecNumber
+        motorcycleId={motorcycleId}
+        rawValue={rawValue}
+        className="font-inter text-[clamp(1.375rem,min(8vw,5.5vmin),2.75rem)] font-extrabold leading-none tracking-[-0.03em] tabular-nums"
+      />
 
       <div className="mx-auto mt-1.5 h-px w-[min(74px,100%)] bg-white/95 xl:mt-2" />
 
@@ -289,6 +399,11 @@ function modelCode(name = '') {
 
 function normalize(value = '') {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
+
+function normalizeShowcaseTerrain(terrain = '') {
+  if (normalize(terrain) === normalize('Rolling Track')) return 'All Terrain'
+  return terrain
 }
 
 function interpolateColor(colors, index) {

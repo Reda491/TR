@@ -50,7 +50,7 @@ export const MOTORCYCLES = [
     price_1_3_days: 150,
     price_3_5_days: 140,
     price_5plus_days: 130,
-    image: '/fleet/ktm-890-adv-r-2025.png',
+    image: '/fleet/KTM-travel-890-adventure-r-2025.png',
     description:
       'High-performance middleweight adventure motorcycle with rally DNA, advanced electronics, and serious off-road suspension.',
   },
@@ -116,7 +116,7 @@ export const MOTORCYCLES = [
     price_1_3_days: 120,
     price_3_5_days: 110,
     price_5plus_days: 100,
-    image: '/fleet/kove-800x-2026.webp',
+    image: '/fleet/kove-800-rally-2026.png',
     description:
       'Lightweight mid-weight adventure motorcycle for mixed terrain, touring roads, and technical tracks.',
   },
@@ -248,7 +248,7 @@ export const MOTORCYCLES = [
     price_1_3_days: 100,
     price_3_5_days: 95,
     price_5plus_days: 90,
-    image: '/fleet/ktm-890-adv-2023.jpg',
+    image: '/fleet/ktm-890-adv-2023.png',
     description:
       'Versatile mid-weight adventure motorcycle for touring, mountain roads, and mixed Moroccan terrain.',
   },

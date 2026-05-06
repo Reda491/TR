@@ -68,11 +68,11 @@ export default function Navbar() {
           y: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
           opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
         }}
-        className={`fixed left-0 right-0 top-0 z-50 border-t-2 border-primary will-change-transform ${
+        className={`fixed left-0 right-0 top-0 z-50 will-change-transform ${
           navHidden ? 'pointer-events-none' : 'pointer-events-auto'
         } ${
           scrolled
-            ? 'border-b border-border/90 bg-background/80 shadow-[0_8px_32px_rgba(0,0,0,0.06)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/[0.07] dark:bg-background/72 dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]'
+            ? 'border-b border-white/10 bg-background/55 shadow-[0_8px_28px_rgba(0,0,0,0.08)] backdrop-blur-xl backdrop-saturate-125 dark:border-white/[0.08] dark:bg-[#0b0c10]/45 dark:shadow-[0_8px_24px_rgba(0,0,0,0.25)]'
             : 'border-b border-transparent bg-transparent'
         }`}
       >
