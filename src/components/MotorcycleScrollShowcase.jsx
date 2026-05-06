@@ -19,6 +19,32 @@ const RIDING_TYPES = [
   { key: 'Offroad', label: 'Offroad' },
 ]
 
+/**
+ * Visual normalization so bikes feel consistent in real-world size.
+ * scale: relative visual size correction
+ * x/y: small per-asset pixel nudges to keep wheelbase/baseline aligned
+ */
+const BIKE_VISUAL_TUNE = {
+  __default: { scale: 1, x: 0, y: 0 },
+  // Post-Photoshop normalization: keep scales tightly grouped.
+  // Scram is the visual baseline.
+  'royal-enfield-scram-411-2023': { scale: 1.03, x: 0, y: 1 },
+  'royal-enfield-classic-350': { scale: 0.98, x: 0, y: 2 },
+  'royal-enfield-himalayan-411-2023': { scale: 1.02, x: 0, y: 1 },
+  'royal-enfield-himalayan-450-2025': { scale: 1.16, x: 0, y: 1 },
+  'cf-mt450': { scale: 1.09, x: 0, y: 1 },
+  'ktm-390-adv-2025': { scale: 0.99, x: 0, y: 1 },
+  'ktm-390-adv-r-2026': { scale: 1.08, x: 0, y: 1 },
+  'ktm-890-adv-2023': { scale: 1.03, x: 0, y: 0 },
+  'ktm-890-adv-r-2025': { scale: 1.02, x: 0, y: 0 },
+  'kove-450-rally-2026': { scale: 0.99, x: 0, y: 0 },
+  'kove-800x-2026': { scale: 1.02, x: 0, y: 0 },
+  'bmw-gs850-trophy-2023': { scale: 1, x: 0, y: 0 },
+}
+
+const NO_DOWNSIZE_IDS = new Set(['royal-enfield-scram-411-2023', 'cf-mt450'])
+const OTHER_BIKES_DOWNSIZE_FACTOR = 0.85
+
 /** Vertical spacing between model lines in the stack (px) */
 const LIST_LINE_STEP = 56
 const COUNT_MS = 720
@@ -177,7 +203,7 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
         }}
       >
         {/* LEFT RIDING CATEGORY NAV */}
-        <div className="absolute left-0 top-0 z-30 hidden h-full w-[86px] border-r border-white/18 lg:block">
+        <div className="absolute left-0 top-0 z-30 hidden h-full w-[86px] lg:block">
           {/* Scroll rail track */}
           <div className="absolute left-[43px] top-0 h-full w-px bg-black/35" />
           {/* Scroll progress fill */}
@@ -232,8 +258,10 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
             const dist = Math.abs(offset)
             const bikeTranslateY = offset * 108
             const bikeOpacity = Math.max(0, 1 - dist * 0.78)
+            const tune = BIKE_VISUAL_TUNE[moto.id] || BIKE_VISUAL_TUNE.__default
             // Smaller base art; center bike reads larger — strong falloff with scroll distance
-            const bikeScale = Math.max(0.72, 1 - dist * 0.12)
+            const perBikeFactor = NO_DOWNSIZE_IDS.has(moto.id) ? 1 : OTHER_BIKES_DOWNSIZE_FACTOR
+            const bikeScale = Math.max(0.72, 1 - dist * 0.12) * tune.scale * perBikeFactor
 
             return (
               <div
@@ -247,7 +275,7 @@ export default function MotorcycleScrollShowcase({ motorcycles = [] }) {
                 <div
                   className="w-[min(88vw,520px)] max-w-[520px] sm:w-[min(82vw,600px)] sm:max-w-[600px] lg:w-[min(34vw,600px)] lg:max-w-[600px] xl:w-[min(36vw,680px)] xl:max-w-[680px] 2xl:max-w-[740px]"
                   style={{
-                    transform: `translateY(calc(-50% + ${bikeTranslateY}vh)) scale(${bikeScale})`,
+                    transform: `translateX(${tune.x}px) translateY(calc(-50% + ${bikeTranslateY}vh + ${tune.y}px)) scale(${bikeScale})`,
                   }}
                 >
                   <img
@@ -391,6 +419,7 @@ function modelCode(name = '') {
     .replace('Royal Enfield', 'RE')
     .replace('Himalayan', 'HIM')
     .replace('Adventure', 'ADV')
+    .replace('Trophy', '')
     .replace('Classic', 'CLS')
     .replace('Rally', 'RALLY')
     .replace(/\s+/g, ' ')

@@ -35,7 +35,7 @@ const translations = {
       showcase_title_1: 'Scroll Through',
       showcase_title_2: 'The Fleet',
       showcase_desc:
-        'Move down to discover each machine through color, specs, price, and riding character.',
+        'Move down to discover our fleet of motorcycles.',
       hangar_label: 'THE HANGAR',
       hangar_title_1: 'Select Your',
       hangar_title_2: 'Machine',
@@ -256,7 +256,9 @@ export function useLang() {
   const [lang, setLangState] = React.useState(currentLang)
   React.useEffect(() => {
     listeners.add(setLangState)
-    return () => listeners.delete(setLangState)
+    return () => {
+      listeners.delete(setLangState)
+    }
   }, [])
   return lang
 }

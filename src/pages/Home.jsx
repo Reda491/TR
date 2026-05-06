@@ -7,9 +7,7 @@ import MotorcycleScrollShowcase from '../components/MotorcycleScrollShowcase'
 import { useLang, t } from '../lib/Lang.js'
 
 /** Place `hero.mp4` in `/public` (and optionally `hero.webm` for smaller files). */
-const HERO_VIDEO_MP4 = '/hero.mp4'
-const HERO_VIDEO_WEBM = '/hero.webm'
-const HERO_POSTER = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=2200'
+const HERO_VIDEO_MP4 = '/hero1.mp4'
 
 const FEATURE_KEYS = [
   { icon: Zap, titleKey: 'home.fleet_title', descKey: 'home.fleet_desc' },
@@ -33,10 +31,17 @@ export default function Home() {
   const heroOpacity = useTransform(scrollYProgress, [0, 0.82], [1, 0.55])
 
   useEffect(() => {
-    apiClient.entities.Motorcycle.list().then((data) => {
-      setMotorcycles(data)
-      setLoading(false)
-    })
+    apiClient.entities.Motorcycle.list()
+      .then((data) => {
+        setMotorcycles(data)
+      })
+      .catch(() => {
+        // Keep page usable even if API fails.
+        setMotorcycles([])
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [])
 
   const stats = t(lang, 'home.stats')
@@ -51,7 +56,7 @@ export default function Home() {
     <main className="page-fade">
       <section
         ref={heroRef}
-        className="relative flex min-h-[94vh] items-center justify-center overflow-hidden"
+        className="relative flex h-svh min-h-svh items-center justify-center overflow-hidden"
       >
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0">
           <video
@@ -60,15 +65,23 @@ export default function Home() {
             muted
             loop
             playsInline
-            poster={HERO_POSTER}
+            preload="auto"
             aria-hidden="true"
           >
-            <source src={HERO_VIDEO_WEBM} type="video/webm" />
             <source src={HERO_VIDEO_MP4} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-black/58" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/15 to-[#050608]" />
-          <div className="absolute inset-0 grid-overlay opacity-[0.22]" />
+          <div className="absolute inset-0 bg-black/52" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/24 via-black/12 to-[#050608]" />
+          <div className="absolute inset-0 grid-overlay opacity-[0.45]" />
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.22]"
+            style={{
+              backgroundImage:
+                'linear-gradient(rgba(255,255,255,0.11) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.11) 1px, transparent 1px)',
+              backgroundSize: '144px 144px',
+            }}
+          />
         </motion.div>
 
         <div className="relative z-10 mx-auto max-w-[1040px] px-6 pt-16 text-center">
@@ -96,7 +109,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto mt-7 max-w-[520px] text-base leading-relaxed text-white/58 md:text-lg"
+            className="mx-auto mt-7 max-w-[520px] text-base leading-relaxed text-[#f4f1ea]/82 md:text-lg"
           >
             {t(lang, 'home.hero_desc')}
           </motion.p>
@@ -122,12 +135,33 @@ export default function Home() {
             </Link>
           </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="pointer-events-none absolute inset-x-0 bottom-9 z-20 flex justify-center"
+        >
+          <div className="flex w-14 flex-col items-center">
+            <div className="h-10 w-px bg-white/16">
+              <div className="h-4 w-px bg-primary/85" />
+            </div>
+            <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.42em] text-white/70">
+              SCROLL
+            </p>
+          </div>
+        </motion.div>
       </section>
 
-      <div
-        aria-hidden
-        className="pointer-events-none h-24 w-full home-hero-exit-blend sm:h-28"
-      />
+      <section className="pb-16">
+        {loading ? (
+          <div className="flex justify-center py-24">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : (
+          <MotorcycleScrollShowcase motorcycles={motorcycles} />
+        )}
+      </section>
 
       <section className="py-24">
         <div className="container-narrow">
@@ -156,35 +190,6 @@ export default function Home() {
             ))}
           </div>
         </div>
-      </section>
-
-      <section className="pb-16">
-        <div className="mb-10 w-full pb-8 dark:home-showcase-intro-ramp dark:pt-8 md:mb-12 md:pb-10 md:dark:pt-10">
-          <div className="container-narrow">
-            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em] text-primary">
-              {'\u2014 '}
-              {t(lang, 'home.showcase_kicker')}
-            </p>
-
-            <h2 className="heading-display text-[clamp(44px,5.2vw,76px)] dark:text-white">
-              {t(lang, 'home.showcase_title_1')}
-              <br />
-              {t(lang, 'home.showcase_title_2')}
-            </h2>
-
-            <p className="mt-5 max-w-md text-[16px] leading-relaxed text-muted-foreground dark:text-white/50">
-              {t(lang, 'home.showcase_desc')}
-            </p>
-          </div>
-        </div>
-
-        {loading ? (
-          <div className="flex justify-center py-24">
-            <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
-        ) : (
-          <MotorcycleScrollShowcase motorcycles={motorcycles} />
-        )}
       </section>
 
       <section className="py-28">

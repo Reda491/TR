@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '@/lib/AuthContext'
-import { SectionHeader } from '@/components/SectionHeader'
+import SectionHeader from '@/components/SectionHeader'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -22,7 +22,7 @@ export function Account() {
     return (
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
         <SectionHeader
-          eyebrow="Account"
+          label="Account"
           title={`Welcome back, ${user.name}`}
           description="This is a demo session stored in localStorage — replace with real auth (Base44, Supabase, etc.)."
         />
@@ -61,7 +61,7 @@ export function Account() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
       <SectionHeader
-        eyebrow="Sign in"
+        label="Sign in"
         title="Demo rider login"
         description="No password in this template — just capture an email to unlock protected pages and personalize the navbar."
       />

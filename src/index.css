@@ -142,10 +142,6 @@
     line-height: 1.06;
   }
 
-  /** Home: lien couleur hero (#050608) → fond page sans bande brute */
-  .home-hero-exit-blend {
-    background: linear-gradient(180deg, #050608 0%, hsl(var(--background)) 100%);
-  }
 
   /** Dark: lien couleurs entre le bloc au-dessus et le showcase (titres uniquement, pas la piste scroll) */
   .dark .home-showcase-intro-ramp {
