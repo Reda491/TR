@@ -6,7 +6,10 @@ import { apiClient } from '@/api/client'
 import MotorcycleScrollShowcase from '../components/MotorcycleScrollShowcase'
 import { useLang, t } from '../lib/Lang.js'
 
-const HERO_BG = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=2200'
+/** Place `hero.mp4` in `/public` (and optionally `hero.webm` for smaller files). */
+const HERO_VIDEO_MP4 = '/hero.mp4'
+const HERO_VIDEO_WEBM = '/hero.webm'
+const HERO_POSTER = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=2200'
 
 const FEATURE_KEYS = [
   { icon: Zap, titleKey: 'home.fleet_title', descKey: 'home.fleet_desc' },
@@ -51,7 +54,18 @@ export default function Home() {
         className="relative flex min-h-[94vh] items-center justify-center overflow-hidden"
       >
         <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0">
-          <img src={HERO_BG} alt="Motorcycle workshop" className="h-full w-full object-cover" />
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={HERO_POSTER}
+            aria-hidden="true"
+          >
+            <source src={HERO_VIDEO_WEBM} type="video/webm" />
+            <source src={HERO_VIDEO_MP4} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-black/58" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/15 to-[#050608]" />
           <div className="absolute inset-0 grid-overlay opacity-[0.22]" />
@@ -110,6 +124,11 @@ export default function Home() {
         </div>
       </section>
 
+      <div
+        aria-hidden
+        className="pointer-events-none h-24 w-full home-hero-exit-blend sm:h-28"
+      />
+
       <section className="py-24">
         <div className="container-narrow">
           <div className="grid overflow-hidden rounded-[22px] border border-border bg-card md:grid-cols-4 dark:border-white/[0.08] dark:bg-white/[0.025]">
@@ -140,21 +159,23 @@ export default function Home() {
       </section>
 
       <section className="pb-16">
-        <div className="container-narrow mb-12">
-          <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em] text-primary">
-            {'\u2014 '}
-            {t(lang, 'home.showcase_kicker')}
-          </p>
+        <div className="mb-10 w-full pb-8 dark:home-showcase-intro-ramp dark:pt-8 md:mb-12 md:pb-10 md:dark:pt-10">
+          <div className="container-narrow">
+            <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.32em] text-primary">
+              {'\u2014 '}
+              {t(lang, 'home.showcase_kicker')}
+            </p>
 
-          <h2 className="heading-display text-[clamp(44px,5.2vw,76px)] dark:text-white">
-            {t(lang, 'home.showcase_title_1')}
-            <br />
-            {t(lang, 'home.showcase_title_2')}
-          </h2>
+            <h2 className="heading-display text-[clamp(44px,5.2vw,76px)] dark:text-white">
+              {t(lang, 'home.showcase_title_1')}
+              <br />
+              {t(lang, 'home.showcase_title_2')}
+            </h2>
 
-          <p className="mt-5 max-w-md text-[16px] leading-relaxed text-muted-foreground dark:text-white/50">
-            {t(lang, 'home.showcase_desc')}
-          </p>
+            <p className="mt-5 max-w-md text-[16px] leading-relaxed text-muted-foreground dark:text-white/50">
+              {t(lang, 'home.showcase_desc')}
+            </p>
+          </div>
         </div>
 
         {loading ? (

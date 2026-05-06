@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, Moon, Sun, X } from 'lucide-react'
@@ -11,34 +11,69 @@ const NAV_PATHS = [
   { key: 'about', path: '/about' },
 ]
 
+const SCROLL_TOP_THRESHOLD = 20
+const SCROLL_DELTA = 10
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [navHidden, setNavHidden] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const lastScrollY = useRef(0)
   const location = useLocation()
   const lang = useLang()
   const theme = useTheme()
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    window.addEventListener('scroll', onScroll)
+    const onScroll = () => {
+      const y = window.scrollY
+      setScrolled(y > SCROLL_TOP_THRESHOLD)
+
+      if (mobileOpen) {
+        setNavHidden(false)
+        lastScrollY.current = y
+        return
+      }
+
+      if (y <= SCROLL_TOP_THRESHOLD) {
+        setNavHidden(false)
+      } else {
+        const delta = y - lastScrollY.current
+        if (delta > SCROLL_DELTA) setNavHidden(true)
+        else if (delta < -SCROLL_DELTA) setNavHidden(false)
+      }
+
+      lastScrollY.current = y
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [mobileOpen])
 
   useEffect(() => {
     setMobileOpen(false)
+    setNavHidden(false)
+    lastScrollY.current = window.scrollY
   }, [location.pathname])
 
   return (
     <>
       <motion.nav
-        initial={{ y: -16, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className={`fixed left-0 right-0 top-0 z-50 border-t-2 border-primary transition-all duration-500 ${
+        initial={{ y: -12, opacity: 0 }}
+        animate={{
+          y: navHidden ? '-100%' : 0,
+          opacity: 1,
+        }}
+        transition={{
+          y: { duration: 0.38, ease: [0.22, 1, 0.36, 1] },
+          opacity: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+        }}
+        className={`fixed left-0 right-0 top-0 z-50 border-t-2 border-primary will-change-transform ${
+          navHidden ? 'pointer-events-none' : 'pointer-events-auto'
+        } ${
           scrolled
-            ? 'bg-background/85 border-b border-border backdrop-blur-2xl'
-            : 'bg-transparent border-b border-transparent'
+            ? 'border-b border-border/90 bg-background/80 shadow-[0_8px_32px_rgba(0,0,0,0.06)] backdrop-blur-2xl backdrop-saturate-150 dark:border-white/[0.07] dark:bg-background/72 dark:shadow-[0_12px_40px_rgba(0,0,0,0.35)]'
+            : 'border-b border-transparent bg-transparent'
         }`}
       >
         <div className="container-site">
